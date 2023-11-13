@@ -1,0 +1,39 @@
+name: ${Name}
+services:
+  whmcs:
+    container_name: whmcs-site
+    build: 
+      context: "./src"
+      args:
+        PT_Version:
+    volumes:
+      - whmcs:/var/www/html 
+   
+    ports:
+      - 80:80
+      - 443:443  
+    depends_on:
+      mysql:
+        condition: service_healthy  
+  mysql:
+    container_name: ${Name}-db
+    image: mysql:${MySQL_Tag}
+    environment:
+     MYSQL_ROOT_PASSWORD: ${DB_ROOT}
+     MYSQL_DATABASE: whmcs
+     MYSQL_USER: admin
+     MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 7306:3306
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mysql -u root -proot -e 'show databases'" ]
+      interval: 5s
+      timeout: 60s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  whmcs:
+  db:   

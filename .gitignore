@@ -1,0 +1,12 @@
+.env
+.idea
+.vscode
+
+# # Download the plugin
+# RUN mkdir _download && cd _download \
+#     && wget https://github.com/paytabscom/paytabs-whmcs/archive/refs/heads/main.zip -O main.zip \
+#     && unzip main.zip \
+#     && rm main.zip \
+#     && cd ..
+
+# RUN mv ./_download/paytabs-whmcs-main/* .

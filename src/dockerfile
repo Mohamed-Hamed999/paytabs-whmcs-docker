@@ -1,0 +1,44 @@
+FROM wajihkm/pt-php7.4:1
+ARG PT_Version
+
+WORKDIR /var/www/html
+
+
+
+# ioncube loader
+RUN curl -fSL 'http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz' -o ioncube.tar.gz \
+    && mkdir -p ioncube \
+    && tar -xf ioncube.tar.gz -C ioncube --strip-components=1 \
+    && rm ioncube.tar.gz \
+    && mv ioncube/ioncube_loader_lin_7.4.so /usr/local/lib/php/extensions/ioncube_loader_lin_7.4.so  \
+    && rm -r ioncube
+ RUN echo "zend_extension=/usr/local/lib/php/extensions/ioncube_loader_lin_7.4.so" > /usr/local/etc/php/php.ini 
+
+
+
+# Unzip the whmcs
+RUN mkdir assets
+COPY assets ./files
+
+
+RUN cd files \
+&& unzip ./whmcs-src.zip
+
+
+RUN cd .. 
+RUN mv ./files/whmcs/* . 
+RUN  rm -rf ./files
+
+# Clone the plugin
+RUN mkdir _downloads
+RUN echo "Downloading version ${PT_Version}..."  # Debug line
+RUN wget https://github.com/paytabscom/paytabs-whmcs/archive/refs/tags/${PT_Version}.zip -O /var/www/html/_downloads/paytabs-whmcs-${PT_Version}.zip
+RUN echo "Download complete."  # Debug line
+RUN unzip _downloads/paytabs-whmcs-${PT_Version}.zip -d _downloads/paytabs-whmcs-${PT_Version}
+
+RUN mv _downloads/paytabs-whmcs-${PT_Version}/* modules/gateways
+RUN rm -rf _downloads
+
+
+RUN chown -R www-data:www-data . \
+    && chmod -R 777 .
